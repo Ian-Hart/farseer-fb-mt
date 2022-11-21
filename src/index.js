@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
 import App from "./components/App";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -11,6 +10,7 @@ import {
   Route,
 } from "react-router-dom";
 
+import 'semantic-ui-css/semantic.min.css'
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
