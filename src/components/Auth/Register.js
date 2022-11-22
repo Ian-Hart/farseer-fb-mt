@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
+
 import {
   Grid,
   Form,
@@ -6,16 +9,45 @@ import {
   Button,
   Header,
   Message,
-  Icon
+  Icon,
 } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 
-
 const Register = () => {
+  const [username, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
-  let state = {};
+  const handleChange = (e) => {
+    switch (e.target.name) {
+      case "username":
+        setUserName(e.target.value);
+        break;
+      case "email":
+        setEmail(e.target.value);
+        break;
+      case "password":
+        setPassword(e.target.value);
+        break;
+      case "passwordConfirmation":
+        setPasswordConfirmation(e.target.value);
+        break;
+      default:
+        break;
+    }
+  };
 
-  const handleChange = () => {};
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(createdUser => {
+        console.log(createdUser);
+      })
+      .catch(err => {
+        console.error(err);
+      }); 
+  };
 
   return (
     <Grid textAlign="center" verticalAlign="middle" className="app">
@@ -24,7 +56,7 @@ const Register = () => {
           <Icon name="eye" color="blue" />
           Register for Farseer
         </Header>
-        <Form size="large">
+        <Form onSubmit={handleSubmit} size="large">
           <Segment stacked>
             <Form.Input
               fluid
@@ -33,6 +65,7 @@ const Register = () => {
               iconPosition="left"
               placeholder="Username"
               onChange={handleChange}
+              value={username}
               type="text"
             />
 
@@ -43,6 +76,7 @@ const Register = () => {
               iconPosition="left"
               placeholder="Email Address"
               onChange={handleChange}
+              value={email}
               type="email"
             />
 
@@ -53,6 +87,7 @@ const Register = () => {
               iconPosition="left"
               placeholder="Password"
               onChange={handleChange}
+              value={password}
               type="password"
             />
 
@@ -63,6 +98,7 @@ const Register = () => {
               iconPosition="left"
               placeholder="Password Confirmation"
               onChange={handleChange}
+              value={passwordConfirmation}
               type="password"
             />
 
