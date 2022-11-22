@@ -19,6 +19,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [error, setError] = useState("");
+  const [loading,setLoading] = useState(false);
 
   const isFormValid = () => {
     if (isFormEmpty()) {
@@ -45,7 +46,7 @@ const Register = () => {
   };
 
   const isPasswordValid = () => {
-    if (password.length < 6 || passwordConfirmation.length < 6) {
+    if (password.length < 6) {
       return false;
     } else {
       return true;
@@ -82,16 +83,27 @@ const Register = () => {
   };
 
   const handleSubmit = (e) => {
+    e.preventDefault();
     if (isFormValid()) {
-      e.preventDefault();
+      setError("");
+      setLoading(true);
       createUserWithEmailAndPassword(auth, email, password)
         .then((createdUser) => {
           console.log(createdUser);
+          setLoading(false);
         })
         .catch((err) => {
-          console.error(err);
+          console.error(err.code);
+          setError(err.code);
+          setLoading(false);
         });
     }
+  };
+
+  const handleInputError = ( inputName) => {
+    return error.toLowerCase().includes(inputName)
+      ? "error"
+      : "";
   };
 
   return (
@@ -122,6 +134,7 @@ const Register = () => {
               placeholder="Email Address"
               onChange={handleChange}
               value={email}
+              className={handleInputError("email")}
               type="email"
             />
 
@@ -133,6 +146,7 @@ const Register = () => {
               placeholder="Password"
               onChange={handleChange}
               value={password}
+              className={handleInputError("password")}
               type="password"
             />
 
@@ -144,9 +158,15 @@ const Register = () => {
               placeholder="Password Confirmation"
               onChange={handleChange}
               value={passwordConfirmation}
+              className={handleInputError("password")}
               type="password"
             />
-            <Button color="blue" fluid size="large">
+            <Button
+              disabled={loading}
+              className={loading ? "loading" : ""} 
+              color="blue" 
+              fluid
+              size="large">
               Submit
             </Button>
           </Segment>
