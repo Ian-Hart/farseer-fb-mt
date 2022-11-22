@@ -18,6 +18,49 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [error, setError] = useState("");
+
+  const isFormValid = () => {
+    if (isFormEmpty()) {
+      setError("All fields are required");
+      return false;
+    } else if (!isPasswordValid()) {
+      setError("Password is invalid - Minimum of 6 characters required");
+      return false;
+    } else if (!isPasswordConfirmed()) {
+      setError("Password and confirmation password are different");
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const isFormEmpty = () => {
+    return (
+      !username.length ||
+      !email.length ||
+      !password.length ||
+      !passwordConfirmation.length
+    );
+  };
+
+  const isPasswordValid = () => {
+    if (password.length < 6 || passwordConfirmation.length < 6) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const isPasswordConfirmed = () => {
+    if (password !== passwordConfirmation) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const displayErrors = () => (<p>{error}</p>);
 
   const handleChange = (e) => {
     switch (e.target.name) {
@@ -39,14 +82,16 @@ const Register = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(createdUser => {
-        console.log(createdUser);
-      })
-      .catch(err => {
-        console.error(err);
-      }); 
+    if (isFormValid()) {
+      e.preventDefault();
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((createdUser) => {
+          console.log(createdUser);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
   };
 
   return (
@@ -101,12 +146,17 @@ const Register = () => {
               value={passwordConfirmation}
               type="password"
             />
-
             <Button color="blue" fluid size="large">
               Submit
             </Button>
           </Segment>
         </Form>
+        {error.length > 0 && (
+          <Message error>
+            <h3>Error</h3>
+            {displayErrors()}
+          </Message>
+        )}
         <Message>
           Already a user? <Link to="/login">Login</Link>
         </Message>
