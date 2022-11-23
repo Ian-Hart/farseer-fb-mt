@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { ref, set } from "firebase/database";
+import { auth, db } from "../../firebase";
+import md5 from "md5";
 
 import {
   Grid,
@@ -19,7 +21,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [error, setError] = useState("");
-  const [loading,setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const isFormValid = () => {
     if (isFormEmpty()) {
@@ -61,7 +63,7 @@ const Register = () => {
     }
   };
 
-  const displayErrors = () => (<p>{error}</p>);
+  const displayErrors = () => <p>{error}</p>;
 
   const handleChange = (e) => {
     switch (e.target.name) {
@@ -89,8 +91,27 @@ const Register = () => {
       setLoading(true);
       createUserWithEmailAndPassword(auth, email, password)
         .then((createdUser) => {
+          console.log("User created");
+          console.log("Update profile name");
           console.log(createdUser);
-          setLoading(false);
+
+          updateProfile(createdUser.user, {
+            displayName: username,
+            photoURL: `http://gravatar.com/avatar/${md5(
+                createdUser.user.email
+              )}?d=identicon`
+          })
+            .then(() => {
+              saveUser(createdUser).then(() => {
+                console.log("user saved");
+                setLoading(false);
+              });
+            })
+            .catch((err) => {
+              console.error(err);
+              setError(err.code);
+              setLoading(false);
+            });
         })
         .catch((err) => {
           console.error(err.code);
@@ -100,10 +121,15 @@ const Register = () => {
     }
   };
 
-  const handleInputError = ( inputName) => {
-    return error.toLowerCase().includes(inputName)
-      ? "error"
-      : "";
+  const saveUser = (createdUser) => {
+    return set(ref(db, "users/" + createdUser.user.uid), {
+      name: createdUser.user.displayName,
+      avatar: createdUser.user.photoURL,
+    });
+  };
+
+  const handleInputError = (error, inputName) => {
+    return error.toLowerCase().includes(inputName) ? "error" : "";
   };
 
   return (
@@ -134,7 +160,7 @@ const Register = () => {
               placeholder="Email Address"
               onChange={handleChange}
               value={email}
-              className={handleInputError("email")}
+              className={handleInputError(error, "email")}
               type="email"
             />
 
@@ -146,7 +172,7 @@ const Register = () => {
               placeholder="Password"
               onChange={handleChange}
               value={password}
-              className={handleInputError("password")}
+              className={handleInputError(error, "password")}
               type="password"
             />
 
@@ -158,15 +184,16 @@ const Register = () => {
               placeholder="Password Confirmation"
               onChange={handleChange}
               value={passwordConfirmation}
-              className={handleInputError("password")}
+              className={handleInputError(error, "password")}
               type="password"
             />
             <Button
               disabled={loading}
-              className={loading ? "loading" : ""} 
-              color="blue" 
+              className={loading ? "loading" : ""}
+              color="blue"
               fluid
-              size="large">
+              size="large"
+            >
               Submit
             </Button>
           </Segment>
