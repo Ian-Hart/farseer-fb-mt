@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 
 import { initializeApp } from 'firebase/app';
-import {getAuth} from 'firebase/auth';
+import {getAuth,  onAuthStateChanged } from 'firebase/auth';
 import { getDatabase } from "firebase/database";
 
 const config = {
@@ -19,6 +19,9 @@ export const app = initializeApp(config);
 export const auth = getAuth(app);
 export const db = getDatabase(app);
 
+export function checkAuth(cb) {
+  return onAuthStateChanged(auth, cb);
+};
 
 
 
