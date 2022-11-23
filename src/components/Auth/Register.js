@@ -135,7 +135,7 @@ const Register = () => {
   return (
     <Grid textAlign="center" verticalAlign="middle" className="app">
       <Grid.Column style={{ maxWidth: 450 }}>
-        <Header as="h2" icon color="blue" textAlign="center">
+        <Header as="h1" icon color="blue" textAlign="center">
           <Icon name="eye" color="blue" />
           Register for Farseer
         </Header>
