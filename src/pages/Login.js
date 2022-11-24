@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
-
+import {Link, useNavigate, Navigate } from "react-router-dom";
+import * as fb from "../firebase";
 import {
   Grid,
   Form,
@@ -11,13 +10,17 @@ import {
   Message,
   Icon,
 } from "semantic-ui-react";
-import { Link } from "react-router-dom";
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const isSignedIn = false;
 
   const isFormValid = () => email && password;
 
@@ -41,16 +44,16 @@ const Login = () => {
     if (isFormValid()) {
       setError("");
       setLoading(true);
-      signInWithEmailAndPassword(auth, email, password)
+      fb.signIn(email, password)
         .then((signedInUser) => {
-          console.log(signedInUser);
-          setLoading(false);
+          navigate("/");
         })
         .catch((err) => {
-          console.error(err.code);
           setError(err.code);
+        })
+        .finally(()=>{
           setLoading(false);
-        });
+        })
     }
   };
 
@@ -59,6 +62,7 @@ const Login = () => {
   };
 
   return (
+    isSignedIn ? <Navigate to="/" replace /> :
     <Grid textAlign="center" verticalAlign="middle" className="app">
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h1" icon color="orange" textAlign="center">

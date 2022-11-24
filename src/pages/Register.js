@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { ref, set } from "firebase/database";
-import { auth, db } from "../../firebase";
+import { useNavigate, Navigate } from "react-router-dom";
+import * as fb from "../firebase";
 import md5 from "md5";
 
 import {
@@ -13,7 +12,7 @@ import {
   Message,
   Icon,
 } from "semantic-ui-react";
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
 
 const Register = () => {
   const [username, setUserName] = useState("");
@@ -22,6 +21,10 @@ const Register = () => {
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const isSignedIn = false;
 
   const isFormValid = () => {
     if (isFormEmpty()) {
@@ -89,43 +92,28 @@ const Register = () => {
     if (isFormValid()) {
       setError("");
       setLoading(true);
-      createUserWithEmailAndPassword(auth, email, password)
+      fb.createUser(email, password)
         .then((createdUser) => {
-          console.log("User created");
-          console.log("Update profile name");
-          console.log(createdUser);
+          
+          let profilePhotoUrl = `http://gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon`;
 
-          updateProfile(createdUser.user, {
-            displayName: username,
-            photoURL: `http://gravatar.com/avatar/${md5(
-                createdUser.user.email
-              )}?d=identicon`
-          })
+          fb.updateUserProfile(createdUser.user, username, profilePhotoUrl)
             .then(() => {
-              saveUser(createdUser).then(() => {
-                console.log("user saved");
-                setLoading(false);
+              fb.saveUser(createdUser.user).then(() => {
+                navigate("/");
               });
             })
             .catch((err) => {
-              console.error(err);
               setError(err.code);
-              setLoading(false);
             });
         })
         .catch((err) => {
-          console.error(err.code);
           setError(err.code);
+        })
+        .finally(()=>{
           setLoading(false);
-        });
+        })
     }
-  };
-
-  const saveUser = (createdUser) => {
-    return set(ref(db, "users/" + createdUser.user.uid), {
-      name: createdUser.user.displayName,
-      avatar: createdUser.user.photoURL,
-    });
   };
 
   const handleInputError = (error, inputName) => {
@@ -133,6 +121,7 @@ const Register = () => {
   };
 
   return (
+    isSignedIn ? <Navigate to="/" replace /> :
     <Grid textAlign="center" verticalAlign="middle" className="app">
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h1" icon color="blue" textAlign="center">

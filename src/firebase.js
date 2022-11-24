@@ -1,8 +1,12 @@
 // Import the functions you need from the SDKs you need
 
 import { initializeApp } from 'firebase/app';
-import {getAuth,  onAuthStateChanged } from 'firebase/auth';
-import { getDatabase } from "firebase/database";
+import {  getAuth, 
+          onAuthStateChanged, 
+          createUserWithEmailAndPassword, 
+          updateProfile, 
+          signInWithEmailAndPassword } from 'firebase/auth';
+import { getDatabase, ref, set } from "firebase/database";
 
 const config = {
   apiKey: "AIzaSyAQBlUDlJFdlsaLSGO3Kpsgmyx1PfG4JbM",
@@ -15,13 +19,40 @@ const config = {
   measurementId: "G-9GKWGY5SQD"
 };
 
-export const app = initializeApp(config);
-export const auth = getAuth(app);
-export const db = getDatabase(app);
+const app = initializeApp(config);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-export function checkAuth(cb) {
+export const checkAuth = (cb) => {
   return onAuthStateChanged(auth, cb);
 };
+
+export const createUser = (email, password) =>{
+  return createUserWithEmailAndPassword(auth, email, password);
+}
+
+export const updateUserProfile = (user, username, profilePhotoUrl) => {
+  return updateProfile(user, {
+    displayName: username,
+    photoURL: profilePhotoUrl
+  });
+}
+
+export const saveUser = (user) => {
+  return set(ref(db, "users/" + user.uid), {
+    name: user.displayName,
+    avatar: user.photoURL,
+  });
+}
+
+export const signIn = (email, password) => {
+  return signInWithEmailAndPassword(auth, email, password);
+}
+
+
+
+
+
 
 
 
