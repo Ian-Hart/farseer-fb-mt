@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
+import {useSelector } from "react-redux";
 import * as fb from "../firebase";
 import md5 from "md5";
-
 import {
   Grid,
   Form,
@@ -12,7 +12,6 @@ import {
   Message,
   Icon,
 } from "semantic-ui-react";
-import { Link} from "react-router-dom";
 
 const Register = () => {
   const [username, setUserName] = useState("");
@@ -24,7 +23,8 @@ const Register = () => {
 
   const navigate = useNavigate();
 
-  const isSignedIn = false;
+  const auth = useSelector(state => state?.auth);
+  const isSignedIn = auth.user?.isSignedIn;
 
   const isFormValid = () => {
     if (isFormEmpty()) {

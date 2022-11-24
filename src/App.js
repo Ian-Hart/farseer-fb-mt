@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import { useDispatch } from "react-redux";
+import { setUser } from "./redux/slices/authSlices";
 
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Loading from "./components/Loading";
@@ -19,15 +17,32 @@ const NoMatch = () => {
 };
 
 function App() {
-  const [user, setUser] = useState(null);
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fb.checkAuth((user) => {
-      setLoading(false);
-      setUser(user);
+      if (user) {
+        setLoading(false);
+        const currentUser = {
+          isSignedIn: true,
+          username : user.displayName,
+          photoURL : user.photoURL,
+        }
+        dispatch(setUser(currentUser));
+      }
+      else{
+        setLoading(false);
+        const noUser = {
+          isSignedIn: false,
+          username : "",
+          photoURL : "",
+        }
+        dispatch(setUser(noUser));
+      }
+      
     });
-  },[]);
+  }, [dispatch]);
 
   return loading ? (
     <Loading />

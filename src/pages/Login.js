@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {Link, useNavigate, Navigate } from "react-router-dom";
+import {useSelector } from "react-redux";
 import * as fb from "../firebase";
 import {
   Grid,
@@ -11,7 +12,6 @@ import {
   Icon,
 } from "semantic-ui-react";
 
-
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +20,8 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const isSignedIn = false;
+  const auth = useSelector(state => state?.auth);
+  const isSignedIn = auth.user?.isSignedIn;
 
   const isFormValid = () => email && password;
 
