@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { useDispatch } from "react-redux";
-import { setUser } from "./redux/slices/authSlices";
+import { setUser, clearUser } from "./redux/slices/authSlices";
 
-import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -24,23 +23,17 @@ function App() {
     fb.checkAuth((user) => {
       if (user) {
         setLoading(false);
-        const currentUser = {
-          isSignedIn: true,
-          username : user.displayName,
-          photoURL : user.photoURL,
-        }
-        dispatch(setUser(currentUser));
-      }
-      else{
+        dispatch(
+          setUser({
+            isSignedIn: true,
+            username: user.displayName,
+            photoURL: user.photoURL,
+          })
+        );
+      } else {
         setLoading(false);
-        const noUser = {
-          isSignedIn: false,
-          username : "",
-          photoURL : "",
-        }
-        dispatch(setUser(noUser));
+        dispatch(clearUser());
       }
-      
     });
   }, [dispatch]);
 
@@ -49,9 +42,8 @@ function App() {
   ) : (
     <Router>
       <Routes>
-        <Route index="/" element={<Home />} />
-        <Route path="/" exact element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route index="/" element={<Dashboard />} />
+        <Route path="/" exact element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<NoMatch />} />

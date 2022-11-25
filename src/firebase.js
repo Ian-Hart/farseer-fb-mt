@@ -5,7 +5,8 @@ import {  getAuth,
           onAuthStateChanged, 
           createUserWithEmailAndPassword, 
           updateProfile, 
-          signInWithEmailAndPassword } from 'firebase/auth';
+          signInWithEmailAndPassword,
+          signOut } from 'firebase/auth';
 import { getDatabase, ref, set } from "firebase/database";
 
 const config = {
@@ -45,8 +46,12 @@ export const saveUser = (user) => {
   });
 }
 
-export const signIn = (email, password) => {
+export const signUserIn = (email, password) => {
   return signInWithEmailAndPassword(auth, email, password);
+}
+
+export const signUserOut = () =>{
+  return signOut(auth);
 }
 
 

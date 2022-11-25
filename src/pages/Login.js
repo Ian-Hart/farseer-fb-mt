@@ -12,6 +12,8 @@ import {
   Icon,
 } from "semantic-ui-react";
 
+import "../App.css";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +47,7 @@ const Login = () => {
     if (isFormValid()) {
       setError("");
       setLoading(true);
-      fb.signIn(email, password)
+      fb.signUserIn(email, password)
         .then((signedInUser) => {
           navigate("/");
         })

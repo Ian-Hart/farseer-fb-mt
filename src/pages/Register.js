@@ -13,6 +13,8 @@ import {
   Icon,
 } from "semantic-ui-react";
 
+import "../App.css";
+
 const Register = () => {
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
