@@ -1,15 +1,18 @@
-import React from "react";
 import * as fb from "../../firebase";
-import { Grid, Header, Icon, Dropdown } from "semantic-ui-react";
+import { useSelector } from "react-redux";
+import { Grid, Header, Icon, Dropdown, Image } from "semantic-ui-react";
 
 const UserPanel = () => {
+
+  const user = useSelector(state => state.auth.user);
+
   const dropdownOptions = () => {
     return [
       {
         key: "user",
         text: (
           <span>
-            Signed in as <strong>User</strong>
+            Signed in as <strong>{user?.username}</strong>
           </span>
         ),
         disabled: true,
@@ -42,7 +45,12 @@ const UserPanel = () => {
 
         {/* User Dropdown  */}
         <Header style={{ padding: "0.25em" }} as="h4" inverted>
-          <Dropdown trigger={<span>User</span>} options={dropdownOptions()} />
+          <Dropdown trigger={
+              <span>
+                <Image src={user?.photoURL} spaced="right" avatar/>
+                {user?.username}
+              </span>
+          } options={dropdownOptions()} />
         </Header>
       </Grid.Column>
     </Grid>
