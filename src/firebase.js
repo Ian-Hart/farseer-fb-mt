@@ -8,6 +8,7 @@ import {  getAuth,
           signInWithEmailAndPassword,
           signOut } from 'firebase/auth';
 import { getDatabase, ref, set } from "firebase/database";
+import { uuidv4 as uuid } from '@firebase/util';
 
 const config = {
   apiKey: "AIzaSyAQBlUDlJFdlsaLSGO3Kpsgmyx1PfG4JbM",
@@ -53,6 +54,20 @@ export const signUserIn = (email, password) => {
 export const signUserOut = () =>{
   return signOut(auth);
 }
+
+export const addStream = (streamName, streamDetails, createByName, createdByAvatar) => {
+  const key = uuid();
+  return set(ref(db, "streams/" + key), {
+    key: key,
+    name: streamName,
+    details: streamDetails,
+    createdBy: {
+      name: createByName,
+      avatar: createdByAvatar
+    }
+  });
+}
+
 
 
 

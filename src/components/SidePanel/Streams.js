@@ -1,11 +1,18 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
+import * as fb from "../../firebase";
 
 const Streams = () => {
+  const user = useSelector((state) => state.auth.user);
+
   const [streams, setStreams] = useState([]);
   const [streamName, setStreamName] = useState("");
   const [streamDetails, setStreamDetails] = useState("");
   const [modal, setModal] = useState(false);
+
+  const openModal = () => setModal(true);
+  const closeModal = () => setModal(false);
 
   const handleChange = (e) => {
     switch (e.target.name) {
@@ -20,9 +27,25 @@ const Streams = () => {
     }
   };
 
-  const openModal = () => setModal(true);
+  const isFormValid = () => streamName && streamDetails;
 
-  const closeModal = () => setModal(false);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isFormValid()) {
+      fb.addStream(streamName, streamDetails, user.username, user.photoURL)
+        .then((signedInUser) => {
+          setStreamName("");
+          setStreamDetails("");
+          closeModal();
+          console.log("Stream Added");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  
 
   return (
     <>
@@ -39,7 +62,7 @@ const Streams = () => {
       <Modal basic open={modal} onClose={closeModal}>
         <Modal.Header>Add a Stream</Modal.Header>
         <Modal.Content>
-          <Form>
+          <Form onSubmit={handleSubmit}>
             <Form.Field>
               <Input
                 fluid
@@ -59,7 +82,7 @@ const Streams = () => {
           </Form>
         </Modal.Content>
         <Modal.Actions>
-          <Button color="green" inverted>
+          <Button color="green" inverted onClick={handleSubmit}>
             <Icon name="checkmark" /> Add
           </Button>
           <Button color="red" inverted onClick={closeModal}>

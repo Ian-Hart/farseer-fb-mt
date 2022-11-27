@@ -1,9 +1,8 @@
-import * as fb from "../../firebase";
 import { useSelector } from "react-redux";
 import { Grid, Header, Icon, Dropdown, Image } from "semantic-ui-react";
+import * as fb from "../../firebase";
 
 const UserPanel = () => {
-
   const user = useSelector(state => state.auth.user);
 
   const dropdownOptions = () => {
