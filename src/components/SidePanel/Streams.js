@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentStream } from "../../redux/slices/streamSlices";
 import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
 import * as fb from "../../firebase";
 import {onChildAdded } from "firebase/database";
 
+
 const Streams = () => {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
   const [streams, setStreams] = useState([]);
@@ -64,13 +67,17 @@ const Streams = () => {
     streams.map((stream) => (
       <Menu.Item
         key={stream.key}
-        onClick={() => console.log(stream)}
+        onClick={() => changeStream(stream)}
         name={stream.name}
         style={{ opacity: 0.7 }}
       >
         # {stream.name}
       </Menu.Item>
     ));
+
+    const changeStream = (stream) => {
+      dispatch(setCurrentStream(stream));
+    };
 
   return (
     <>
