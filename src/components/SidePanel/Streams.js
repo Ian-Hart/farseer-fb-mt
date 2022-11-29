@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
 import * as fb from "../../firebase";
+import {onChildAdded } from "firebase/database";
 
 const Streams = () => {
   const user = useSelector((state) => state.auth.user);
@@ -10,6 +11,19 @@ const Streams = () => {
   const [streamName, setStreamName] = useState("");
   const [streamDetails, setStreamDetails] = useState("");
   const [modal, setModal] = useState(false);
+
+  useEffect(() => {
+    streamAddedListener();
+  }, []);
+
+  const streamAddedListener = () => {
+    let loadedStreams = [];
+    const streamRef = fb.streamRef();
+    onChildAdded(streamRef, (data) => {
+      loadedStreams.push(data.val());
+      setStreams(loadedStreams);
+    });
+  };
 
   const openModal = () => setModal(true);
   const closeModal = () => setModal(false);
@@ -45,7 +59,18 @@ const Streams = () => {
     }
   };
 
-  
+  const displayChannels = () =>
+    streams.length > 0 &&
+    streams.map((stream) => (
+      <Menu.Item
+        key={stream.key}
+        onClick={() => console.log(stream)}
+        name={stream.name}
+        style={{ opacity: 0.7 }}
+      >
+        # {stream.name}
+      </Menu.Item>
+    ));
 
   return (
     <>
@@ -56,7 +81,7 @@ const Streams = () => {
           </span>{" "}
           ({streams.length}) <Icon name="add" onClick={openModal} />
         </Menu.Item>
-        {/* Streams */}
+        {displayChannels()}
       </Menu.Menu>
       {/* Add Channel Modal */}
       <Modal basic open={modal} onClose={closeModal}>

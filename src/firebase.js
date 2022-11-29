@@ -23,7 +23,7 @@ const config = {
 
 const app = initializeApp(config);
 const auth = getAuth(app);
-const db = getDatabase(app);
+export const db = getDatabase(app);
 
 export const checkAuth = (cb) => {
   return onAuthStateChanged(auth, cb);
@@ -66,6 +66,10 @@ export const addStream = (streamName, streamDetails, createByName, createdByAvat
       avatar: createdByAvatar
     }
   });
+}
+
+export const streamRef = () => {
+  return ref(db, "streams");
 }
 
 
