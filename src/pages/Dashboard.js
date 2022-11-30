@@ -11,7 +11,7 @@ import MetaPanel from "../components/MetaPanel/MetaPanel";
 
 const Dashboard = () => {
   const auth = useSelector((state) => state?.auth);
-  const isSignedIn = auth.user?.isSignedIn;
+  const isSignedIn = auth?.isSignedIn;
   return !isSignedIn ? (
     <Navigate to="/login" replace />
   ) : (

@@ -62,6 +62,10 @@ const Streams = () => {
     }
   };
 
+  const changeStream = (stream) => {
+    dispatch(setCurrentStream(stream));
+  };
+
   const displayChannels = () =>
     streams.length > 0 &&
     streams.map((stream) => (
@@ -75,18 +79,12 @@ const Streams = () => {
       </Menu.Item>
     ));
 
-    const changeStream = (stream) => {
-      dispatch(setCurrentStream(stream));
-    };
-
   return (
     <>
       <Menu.Menu style={{ paddingBottom: "2em" }}>
         <Menu.Item>
           <span>
-            <Icon name="exchange" /> STREAMS
-          </span>{" "}
-          ({streams.length}) <Icon name="add" onClick={openModal} />
+            <Icon name="exchange" /> STREAMS </span>{" "} ({streams.length})<Icon name="add" onClick={openModal} />
         </Menu.Item>
         {displayChannels()}
       </Menu.Menu>

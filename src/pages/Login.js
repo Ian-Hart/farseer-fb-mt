@@ -23,7 +23,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const auth = useSelector(state => state?.auth);
-  const isSignedIn = auth.user?.isSignedIn;
+  const isSignedIn = auth?.isSignedIn;
 
   const isFormValid = () => email && password;
 
