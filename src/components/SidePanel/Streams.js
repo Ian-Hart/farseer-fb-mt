@@ -10,14 +10,16 @@ const Streams = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
+  const [activeStreamKey, setActiveStreamKey] = useState("");
   const [streams, setStreams] = useState([]);
   const [streamName, setStreamName] = useState("");
   const [streamDetails, setStreamDetails] = useState("");
   const [modal, setModal] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
     streamAddedListener();
-  }, []);
+  },[]);
 
   const streamAddedListener = () => {
     let loadedStreams = [];
@@ -25,7 +27,17 @@ const Streams = () => {
     onChildAdded(streamRef, (data) => {
       loadedStreams.push(data.val());
       setStreams(loadedStreams);
+      setInitialStream(loadedStreams);
     });
+  };
+
+  const setInitialStream = (loadedStreams) => {
+    const initialStream = loadedStreams[0]
+    if (initialLoad && loadedStreams.length > 0) {
+      dispatch(setCurrentStream(initialStream));
+      setActiveStreamKey(initialStream.key);
+    }
+    setInitialLoad(false);
   };
 
   const openModal = () => setModal(true);
@@ -64,9 +76,10 @@ const Streams = () => {
 
   const changeStream = (stream) => {
     dispatch(setCurrentStream(stream));
+    setActiveStreamKey(stream.key);
   };
 
-  const displayChannels = () =>
+  const displayStreams = () =>
     streams.length > 0 &&
     streams.map((stream) => (
       <Menu.Item
@@ -74,6 +87,7 @@ const Streams = () => {
         onClick={() => changeStream(stream)}
         name={stream.name}
         style={{ opacity: 0.7 }}
+        active={stream.key === activeStreamKey}
       >
         # {stream.name}
       </Menu.Item>
@@ -86,7 +100,7 @@ const Streams = () => {
           <span>
             <Icon name="exchange" /> STREAMS </span>{" "} ({streams.length})<Icon name="add" onClick={openModal} />
         </Menu.Item>
-        {displayChannels()}
+        {displayStreams()}
       </Menu.Menu>
       {/* Add Channel Modal */}
       <Modal basic open={modal} onClose={closeModal}>
