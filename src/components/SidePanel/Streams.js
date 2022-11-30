@@ -17,19 +17,24 @@ const Streams = () => {
   const [modal, setModal] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
 
+  const streamRef = fb.streamRef();
+
   useEffect(() => {
-    streamAddedListener();
-  },[]);
+    let unsubscribe = streamAddedListener();
+    return () => streamRef.off(unsubscribe);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[]);
 
   const streamAddedListener = () => {
     let loadedStreams = [];
-    const streamRef = fb.streamRef();
-    onChildAdded(streamRef, (data) => {
+    return onChildAdded(streamRef, (data) => {
       loadedStreams.push(data.val());
       setStreams(loadedStreams);
       setInitialStream(loadedStreams);
     });
   };
+
+
 
   const setInitialStream = (loadedStreams) => {
     const initialStream = loadedStreams[0]
