@@ -38,7 +38,7 @@ const UserPanel = () => {
         <Grid.Row style={{ padding: "1.2em", margin: 0 }}>
           {/* App Header */}
           <Header inverted floated="left" as="h2">
-            <Icon name="eye" />
+            <Icon name="random" />
             <Header.Content>Farseer</Header.Content>
           </Header>
         </Grid.Row>

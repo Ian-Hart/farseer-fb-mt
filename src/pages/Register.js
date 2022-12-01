@@ -127,7 +127,7 @@ const Register = () => {
     <Grid textAlign="center" verticalAlign="middle" className="app">
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h1" icon color="blue" textAlign="center">
-          <Icon name="eye" color="blue" />
+          <Icon name="random" color="blue" />
           Register for Farseer
         </Header>
         <Form onSubmit={handleSubmit} size="large">

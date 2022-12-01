@@ -69,7 +69,7 @@ const Login = () => {
     <Grid textAlign="center" verticalAlign="middle" className="app">
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h1" icon color="orange" textAlign="center">
-          <Icon name="eye" color="orange" />
+          <Icon name="random" color="orange" />
           Login to Farseer
         </Header>
         <Form onSubmit={handleSubmit} size="large">
