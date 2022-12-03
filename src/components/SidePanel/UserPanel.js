@@ -12,7 +12,7 @@ const UserPanel = () => {
         key: "user",
         text: (
           <span>
-            Signed in as <strong>{user?.username}</strong>
+            Signed in as <strong>{user?.name}</strong>
           </span>
         ),
         disabled: true,
@@ -47,8 +47,8 @@ const UserPanel = () => {
         <Header style={{ padding: "0.25em" }} as="h4" inverted>
           <Dropdown trigger={
               <span>
-                <Image src={user?.photoURL} spaced="right" avatar/>
-                {user?.username}
+                <Image src={user?.avatar} spaced="right" avatar/>
+                {user?.name}
               </span>
           } options={dropdownOptions()} />
         </Header>

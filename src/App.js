@@ -26,8 +26,9 @@ function App() {
         dispatch(
           setUser({
             isSignedIn: true,
-            username: user.displayName,
-            photoURL: user.photoURL,
+            id: user.uid,
+            name: user.displayName,
+            avatar: user.photoURL,
           })
         );
       } else {

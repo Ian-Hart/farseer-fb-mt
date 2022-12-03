@@ -3,47 +3,59 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentStream } from "../../redux/slices/streamSlices";
 import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
 import * as fb from "../../firebase";
-import {onChildAdded } from "firebase/database";
-
+import { off, onChildAdded } from "firebase/database";
+import { uuidv4 as uuid } from "@firebase/util";
 
 const Streams = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const currentStream = useSelector((state) => state.stream.currentStream);
 
-  const [activeStreamKey, setActiveStreamKey] = useState("");
+  const [currentStreamId, setCurrentStreamId] = useState("");
   const [streams, setStreams] = useState([]);
   const [streamName, setStreamName] = useState("");
   const [streamDetails, setStreamDetails] = useState("");
   const [modal, setModal] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
 
   const streamRef = fb.streamRef();
 
   useEffect(() => {
     let unsubscribe = streamAddedListener();
-    return () => streamRef.off(unsubscribe);
+    return () => off(unsubscribe);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[]);
+  }, []);
 
   const streamAddedListener = () => {
-    let loadedStreams = [];
+    let loadedFirebaseStreams = [];
     return onChildAdded(streamRef, (data) => {
-      loadedStreams.push(data.val());
-      setStreams(loadedStreams);
-      setInitialStream(loadedStreams);
+      let firebaseStream = data.val();
+      loadedFirebaseStreams.push(firebaseStream);
+      setStreams(loadedFirebaseStreams);
+      changeStream(firebaseStream)
     });
   };
 
+  useEffect(() => {
+      setCurrentStreamId(currentStream.id);
+  }, [currentStream]);
 
-
-  const setInitialStream = (loadedStreams) => {
-    const initialStream = loadedStreams[0]
-    if (initialLoad && loadedStreams.length > 0) {
-      dispatch(setCurrentStream(initialStream));
-      setActiveStreamKey(initialStream.key);
-    }
-    setInitialLoad(false);
+  const changeStream = (stream) => {
+    dispatch(setCurrentStream(stream));
   };
+
+  const displayStreams = () =>
+    streams.length > 0 &&
+    streams.map((stream) => (
+      <Menu.Item
+        key={stream.id}
+        onClick={() => changeStream(stream)}
+        name={stream.name}
+        style={{ opacity: 0.7 }}
+        active={stream.id === currentStreamId}
+      >
+        # {stream.name}
+      </Menu.Item>
+    ));
 
   const openModal = () => setModal(true);
   const closeModal = () => setModal(false);
@@ -66,11 +78,21 @@ const Streams = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isFormValid()) {
-      fb.addStream(streamName, streamDetails, user.username, user.photoURL)
-        .then((signedInUser) => {
+      const id = uuid();
+      let stream = {
+        id,
+        streamName,
+        streamDetails,
+        user,
+      };
+
+      fb.addStream(stream)
+        .then(() => {
           setStreamName("");
           setStreamDetails("");
+          changeStream(stream);
           closeModal();
+
           console.log("Stream Added");
         })
         .catch((err) => {
@@ -79,31 +101,14 @@ const Streams = () => {
     }
   };
 
-  const changeStream = (stream) => {
-    dispatch(setCurrentStream(stream));
-    setActiveStreamKey(stream.key);
-  };
-
-  const displayStreams = () =>
-    streams.length > 0 &&
-    streams.map((stream) => (
-      <Menu.Item
-        key={stream.key}
-        onClick={() => changeStream(stream)}
-        name={stream.name}
-        style={{ opacity: 0.7 }}
-        active={stream.key === activeStreamKey}
-      >
-        # {stream.name}
-      </Menu.Item>
-    ));
-
   return (
     <>
       <Menu.Menu style={{ paddingBottom: "2em" }}>
         <Menu.Item>
           <span>
-            <Icon name="exchange" /> STREAMS </span>{" "} ({streams.length})<Icon name="add" onClick={openModal} />
+            <Icon name="exchange" /> STREAMS{" "}
+          </span>{" "}
+          ({streams.length})<Icon name="add" onClick={openModal} />
         </Menu.Item>
         {displayStreams()}
       </Menu.Menu>
