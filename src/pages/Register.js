@@ -123,7 +123,7 @@ const Register = () => {
   };
 
   return (
-    isSignedIn ? <Navigate to="/" replace /> :
+    isSignedIn ? <Navigate to="/" replace={true} /> :
     <Grid textAlign="center" verticalAlign="middle" className="app">
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h1" icon color="blue" textAlign="center">
