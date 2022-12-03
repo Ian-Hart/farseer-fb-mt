@@ -13,7 +13,7 @@ const Dashboard = () => {
   const auth = useSelector((state) => state?.auth);
   const isSignedIn = auth?.isSignedIn;
   return !isSignedIn ? (
-    <Navigate to="/login" replace />
+    <Navigate to="/login" replace={true} />
   ) : (
     <Grid columns="equal" className="app" style={{ background: "#eee" }}>
       <ColorPanel />

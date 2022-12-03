@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentStream } from "../../redux/slices/streamSlices";
 import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
 import * as fb from "../../firebase";
-import { off, onChildAdded } from "firebase/database";
+import { onChildAdded } from "firebase/database";
 import { uuidv4 as uuid } from "@firebase/util";
 
 const Streams = () => {
@@ -21,7 +21,7 @@ const Streams = () => {
 
   useEffect(() => {
     let unsubscribe = streamAddedListener();
-    return () => off(unsubscribe);
+    return () => unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
