@@ -7,7 +7,7 @@ import {  getAuth,
           updateProfile, 
           signInWithEmailAndPassword,
           signOut } from 'firebase/auth';
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, set, push } from "firebase/database";
 
 
 const config = {
@@ -65,8 +65,21 @@ export const addStream = (stream) => {
   });
 }
 
-export const streamRef = () => {
+export const streamsRef = () => {
   return ref(db, "streams");
+}
+
+export const addMessage = (stream, message) => {
+  const msgStreamRef = push(ref(db, "messages/" + stream.id));
+  return set(msgStreamRef, {
+    timestamp: message.timestamp,
+    user: message.user,
+    content: message.content 
+  });
+}
+
+export const messagesRef = (streamId) => {
+  return ref(db, "messages/" + streamId);
 }
 
 

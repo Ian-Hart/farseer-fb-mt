@@ -17,7 +17,7 @@ const Streams = () => {
   const [streamDetails, setStreamDetails] = useState("");
   const [modal, setModal] = useState(false);
 
-  const streamRef = fb.streamRef();
+  const streamRef = fb.streamsRef();
 
   useEffect(() => {
     let unsubscribe = streamAddedListener();
