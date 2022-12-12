@@ -3,8 +3,8 @@ import { useSelector } from "react-redux";
 import { Segment, Button, Input } from "semantic-ui-react";
 import * as fb from "../../firebase";
 import { serverTimestamp } from "firebase/database";
+import FileModal from "./FileModal";
 import _ from "lodash";
-
 
 const MessageForm = () => {
   const user = useSelector((state) => state.auth.user);
@@ -13,6 +13,10 @@ const MessageForm = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modal, setModal] = useState(false);
+
+  const openModal = () => setModal(true);
+  const closeModal = () => setModal(false);
 
   const handleChange = (e) => {
     switch (e.target.name) {
@@ -55,6 +59,10 @@ const MessageForm = () => {
   const handleInputError = (error, inputName) => {
     return error.toLowerCase().includes(inputName) ? "error" : "";
   };
+  
+  const uploadFile = (file, metadata) => {
+    console.log(file, metadata);
+  };
       
   return (
     <Segment className="message__form">
@@ -80,10 +88,12 @@ const MessageForm = () => {
         />
         <Button
           color="teal"
+          onClick={openModal}
           content="Upload Media"
           labelPosition="right"
           icon="cloud upload"
         />
+        <FileModal modal={modal} closeModal={closeModal} uploadFile={uploadFile} />
       </Button.Group>
     </Segment>
   );
