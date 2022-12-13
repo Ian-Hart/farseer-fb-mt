@@ -8,7 +8,7 @@ import {  getAuth,
           signInWithEmailAndPassword,
           signOut } from 'firebase/auth';
 import { getDatabase, ref, set, push } from "firebase/database";
-
+import { getStorage } from "firebase/storage";
 
 const config = {
   apiKey: "AIzaSyAQBlUDlJFdlsaLSGO3Kpsgmyx1PfG4JbM",
@@ -24,6 +24,8 @@ const config = {
 const app = initializeApp(config);
 const auth = getAuth(app);
 export const db = getDatabase(app);
+export const storage = getStorage(app);
+
 
 export const checkAuth = (cb) => {
   return onAuthStateChanged(auth, cb);
@@ -71,11 +73,7 @@ export const streamsRef = () => {
 
 export const addMessage = (stream, message) => {
   const msgStreamRef = push(ref(db, "messages/" + stream.id));
-  return set(msgStreamRef, {
-    timestamp: message.timestamp,
-    user: message.user,
-    content: message.content 
-  });
+  return set(msgStreamRef, message);
 }
 
 export const messagesRef = (streamId) => {

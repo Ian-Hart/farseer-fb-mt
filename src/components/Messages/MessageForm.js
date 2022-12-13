@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { Segment, Button, Input } from "semantic-ui-react";
 import * as fb from "../../firebase";
 import { serverTimestamp } from "firebase/database";
+import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
+import { uuidv4 as uuid } from "@firebase/util";
 import FileModal from "./FileModal";
 import _ from "lodash";
 
@@ -14,6 +16,8 @@ const MessageForm = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
+  const [uploadState, setUploadState] = useState("");
+  const [percentUploaded, setPercentageUploaded] = useState(0);
 
   const openModal = () => setModal(true);
   const closeModal = () => setModal(false);
@@ -28,42 +32,95 @@ const MessageForm = () => {
     }
   };
 
-  const createMessage = () => {
+  const createMessage = (fileUrl = null) => {
     const msg = {
       timestamp: serverTimestamp(),
-      user,
-      content: message,
+      user
     };
+
+    if (fileUrl !== null) {
+      msg["image"] = fileUrl;
+    } else {
+      msg["content"] = message;
+    }
+
+    console.log(msg);
+
     return msg;
   };
 
-  const sendMessage = () => {
+  const sendTextMessage = () => {
     if (message && !_.isEmpty(currentStream)) {
-      setLoading(true);
-      fb.addMessage(currentStream, createMessage())
-      .then(()=>{
-        setLoading(false);
-        setMessage("");
-        setError("");
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-        setError(err);
-      });
+      sendMessage();
     } else {
       setError("Select a stream and add a message");
     }
   };
 
+  const sendImageMessage = (fileUrl) => {
+    if (fileUrl !== null && !_.isEmpty(currentStream)) {
+      sendMessage(fileUrl);
+    } else {
+      setError("Select a stream and add a file");
+    }
+  };
+
+  const sendMessage = (fileUrl = null) => {
+    setLoading(true);
+    fb.addMessage(currentStream, createMessage(fileUrl))
+      .then(() => {
+        setLoading(false);
+        setMessage("");
+        setError("");
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+        setError(err);
+      });
+  };
+
   const handleInputError = (error, inputName) => {
     return error.toLowerCase().includes(inputName) ? "error" : "";
   };
-  
+
   const uploadFile = (file, metadata) => {
-    console.log(file, metadata);
+    const filePath = `chat/public/${uuid()}.jpg`;
+    const storageRef = ref(fb.storage, filePath);
+
+    let uploadTask = uploadBytesResumable(storageRef, file);
+    setUploadState("uploading");
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setPercentageUploaded(progress);
+      },
+      (error) => {
+        console.error(error);
+        setUploadState("error");
+        uploadTask = null;
+        setError(error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref)
+          .then((downloadURL) => {
+            sendImageMessage(downloadURL);
+          })
+          .catch((error) => {
+            console.error(error);
+            setUploadState("error");
+            uploadTask = null;
+            setError(error);
+          });
+      }
+    );
   };
-      
+
+
   return (
     <Segment className="message__form">
       <Input
@@ -79,7 +136,7 @@ const MessageForm = () => {
       />
       <Button.Group icon widths="2">
         <Button
-          onClick={sendMessage}
+          onClick={sendTextMessage}
           disabled={loading}
           color="orange"
           content="Add Reply"
@@ -93,7 +150,11 @@ const MessageForm = () => {
           labelPosition="right"
           icon="cloud upload"
         />
-        <FileModal modal={modal} closeModal={closeModal} uploadFile={uploadFile} />
+        <FileModal
+          modal={modal}
+          closeModal={closeModal}
+          uploadFile={uploadFile}
+        />
       </Button.Group>
     </Segment>
   );
