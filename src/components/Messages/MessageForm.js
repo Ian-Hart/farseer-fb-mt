@@ -5,8 +5,10 @@ import * as fb from "../../firebase";
 import { serverTimestamp } from "firebase/database";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { uuidv4 as uuid } from "@firebase/util";
-import FileModal from "./FileModal";
 import _ from "lodash";
+
+import FileModal from "./FileModal";
+import ProgressBar from "./ProgressBar";
 
 const MessageForm = () => {
   const user = useSelector((state) => state.auth.user);
@@ -35,7 +37,7 @@ const MessageForm = () => {
   const createMessage = (fileUrl = null) => {
     const msg = {
       timestamp: serverTimestamp(),
-      user
+      user,
     };
 
     if (fileUrl !== null) {
@@ -72,11 +74,13 @@ const MessageForm = () => {
         setLoading(false);
         setMessage("");
         setError("");
+        setUploadState("done");
       })
       .catch((err) => {
         console.error(err);
         setLoading(false);
         setError(err);
+        setUploadState("Error");
       });
   };
 
@@ -120,7 +124,6 @@ const MessageForm = () => {
     );
   };
 
-
   return (
     <Segment className="message__form">
       <Input
@@ -146,16 +149,21 @@ const MessageForm = () => {
         <Button
           color="teal"
           onClick={openModal}
+          disabled={uploadState === "uploading"}
           content="Upload Media"
           labelPosition="right"
           icon="cloud upload"
         />
-        <FileModal
-          modal={modal}
-          closeModal={closeModal}
-          uploadFile={uploadFile}
-        />
       </Button.Group>
+      <FileModal
+        modal={modal}
+        closeModal={closeModal}
+        uploadFile={uploadFile}
+      />
+      <ProgressBar
+        uploadState={uploadState}
+        percentUploaded={percentUploaded}
+      />
     </Segment>
   );
 };
