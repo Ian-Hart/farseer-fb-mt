@@ -12,6 +12,10 @@ const Messages = () => {
   const [messagesLoading, setMessagesLoading] = useState(true);
   const [messageCnt, setMessageCnt] = useState(0);
   const [numUniqueUsers, setNumUniqueUsers] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+
   const stream = useSelector((state) => state.stream.currentStream);
   const user = useSelector((state) => state.auth.user);
 
@@ -20,37 +24,74 @@ const Messages = () => {
       setMessagesLoading(true);
       setMessages([]);
       setMessageCnt(0);
+      setSearchLoading(false);
+      setSearchResults([]);
+      setSearchTerm("");
       console.log(stream.id);
       const unsubscribe = messageListener(stream.id);
       return () => unsubscribe();
-    } 
-  },[stream]);
+    }
+  }, [stream]);
 
-  useEffect(()=>{
-    console.log("count");
+  useEffect(() => {
     countUniqueUsers();
     displayMessages();
+    displayHeader();
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  },[messageCnt]);
+  }, [messageCnt]);
 
-  const messageListener = (streamId) => { 
+  /*
+  useEffect(() => {
+    countUniqueUsers();
+    displayHeader();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageCnt, searchTerm, stream]);*/
+
+  const messageListener = (streamId) => {
     let loadedMessages = [];
     return onChildAdded(fb.messagesRef(streamId), (data) => {
       loadedMessages.push(data.val());
       setMessages(loadedMessages);
-      setMessageCnt(loadedMessages.length)
+      setMessageCnt(loadedMessages.length);
       setMessagesLoading(false);
     });
-    
   };
 
-  const displayMessages = () =>
-    messages.length > 0 &&
-    messages.map((message) => (
-      <Message key={message.timestamp} message={message} user={user} />
-    ));
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setSearchLoading(true);
+    handleSearchMessages();
+  };
 
-  const displayStreamName = stream => (stream ? `#${stream.name}` : "");
+  const handleSearchMessages = () => {
+    const streamMessages = [...messages];
+    const regex = new RegExp(searchTerm, "gi");
+    const results = streamMessages.reduce((acc, message) => {
+      if (
+        (message.content && message.content.match(regex)) ||
+        message.user.name.match(regex)
+      ) {
+        acc.push(message);
+      }
+      return acc;
+    }, []);
+    setSearchResults(results);
+    setTimeout(() => setSearchLoading(false), 1000);
+  };
+
+  const displayMessages = (_messages) => {
+    console.log(_messages);
+    if (_messages !== undefined) {
+      return (
+        _messages.length > 0 &&
+        _messages.map((message) => (
+          <Message key={message.timestamp} message={message} user={user} />
+        ))
+      );
+    }
+  };
+
+  const displayStreamName = (stream) => (stream ? `#${stream.name}` : "");
 
   const countUniqueUsers = () => {
     let uniqueUsers = [];
@@ -68,14 +109,27 @@ const Messages = () => {
     setNumUniqueUsers(`${uniqueUsers.length} user${plural ? "s" : ""}`);
   };
 
+  const displayHeader = () => {
+    return(
+      <MessagesHeader
+        streamName={displayStreamName(stream)}
+        numUniqueUsers={numUniqueUsers}
+        handleSearchChange={handleSearchChange}
+        searchLoading={searchLoading}
+        searchTerm={searchTerm}
+      />
+    );
+  }
+
   return (
     <>
-      <MessagesHeader
-          streamName={displayStreamName(stream)}
-          numUniqueUsers={numUniqueUsers}
-        />
+      {displayHeader()}
       <Segment>
-        <Comment.Group className="messages">{displayMessages()}</Comment.Group>
+        <Comment.Group className="messages">
+          {searchTerm
+            ? displayMessages(searchResults)
+            : displayMessages(messages)}
+        </Comment.Group>
       </Segment>
       <MessageForm />
     </>
