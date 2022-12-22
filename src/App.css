@@ -5,10 +5,14 @@ body,
   background: #eee;
   padding: 1em;
 }
+/* SidePanel.js */
+.menu {
+  padding-bottom: 2em;
+}
 
 /* Messages.js */
 .messages {
-  height: 510px;
+  height: 62vh;
   overflow-y: scroll;
 }
 
@@ -31,5 +35,11 @@ body,
 .message__image {
   padding: 1em;
 }
+
+/* ProgressBar.js */
+.progress__bar {
+  margin: 0.3em 0 0 0 !important;
+}
+
 
 
