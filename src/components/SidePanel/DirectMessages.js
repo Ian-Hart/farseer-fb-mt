@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   onChildAdded,
   onChildRemoved,
@@ -13,11 +13,16 @@ import { Menu, Icon } from "semantic-ui-react";
 import * as fb from "../../firebase";
 import "../../App.css";
 
-const DirectMessages = () => {
-  const user = useSelector((state) => state.auth.user);
-  const [users, setUsers] = useState([]);
+import { setCurrentStream } from "../../redux/slices/streamSlices";
+import { setPrivateStream } from "../../redux/slices/streamSlices";
 
-  let _users = [];
+const DirectMessages = () => {
+
+  const dispatch = useDispatch();
+
+  const user = useSelector((state) => state.auth.user);
+  const [otherUsers, setOtherUsers] = useState([]);
+  let _otherUsers = [];
 
   const usersRef = fb.usersRef();
   const connectedRef = fb.connectedRef();
@@ -44,7 +49,7 @@ const DirectMessages = () => {
         let otherUser = snap.val();
         otherUser["id"] = snap.key;
         otherUser["status"] = "offline";
-        _users.push(otherUser);
+        _otherUsers.push(otherUser);
       }
     });
   };
@@ -80,16 +85,38 @@ const DirectMessages = () => {
   };
 
   const addStatusToUser = (userId, connected = true) => {
-    const updatedUsers = _users.reduce((acc, otherUser) => {
+    const updatedUsers = _otherUsers.reduce((acc, otherUser) => {
       if (otherUser.id === userId) {
         otherUser["status"] = `${connected ? "online" : "offline"}`;
       }
       return acc.concat(otherUser);
     }, []);
-    setUsers(updatedUsers);
+    setOtherUsers(updatedUsers);
   };
 
   const isUserOnline = (user) => user.status === "online";
+
+  const changeStream = otherUser => {
+    console.log("Other User");
+    console.log(otherUser);
+    const streamId = getStreamId(otherUser.id);
+    const streamData = {
+      id: streamId,
+      name: otherUser.name
+    };
+
+    console.log("Set DM Stream");
+    console.log(streamData);
+    dispatch(setCurrentStream(streamData));
+    dispatch(setPrivateStream(true));
+  };
+
+  const getStreamId = otherUserId => {
+    const currentUserId = user.id;
+    return otherUserId < currentUserId
+      ? `${otherUserId}/${currentUserId}`
+      : `${currentUserId}/${otherUserId}`;
+  };
 
   return (
     <Menu.Menu className="menu">
@@ -97,16 +124,16 @@ const DirectMessages = () => {
         <span>
           <Icon name="mail" /> DIRECT MESSAGES
         </span>{" "}
-        ({users.length})
+        ({otherUsers.length})
       </Menu.Item>
-      {users.map((user) => (
+      {otherUsers.map((otherUser) => (
         <Menu.Item
-          key={user.id}
-          onClick={() => console.log(user)}
+          key={otherUser.id}
+          onClick={() => changeStream(otherUser)}
           style={{ opacity: 0.7, fontStyle: "italic" }}
         >
-          <Icon name="circle" color={isUserOnline(user) ? "green" : "red"} />@{" "}
-          {user.name}
+          <Icon name="circle" color={isUserOnline(otherUser) ? "green" : "red"} />@{" "}
+          {otherUser.name}
         </Menu.Item>
       ))}
     </Menu.Menu>

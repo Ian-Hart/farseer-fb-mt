@@ -11,11 +11,14 @@ export const streamSlices = createSlice({
     setCurrentStream: (state, action) => {
       state.currentStream = action.payload;
     },
+    setPrivateStream : (state, action) => {
+      state.currentStream.isPrivateChannel = action.payload;
+    },
   },
 });
 
 //Generate the action creators
-export const { setCurrentStream } = streamSlices.actions;
+export const { setCurrentStream, setPrivateStream } = streamSlices.actions;
 
 //Export reducers
 export default streamSlices.reducer;
