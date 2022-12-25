@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     currentStream: {},
+    isPrivateStream : false
 };
 
 export const streamSlices = createSlice({
@@ -12,7 +13,7 @@ export const streamSlices = createSlice({
       state.currentStream = action.payload;
     },
     setPrivateStream : (state, action) => {
-      state.currentStream.isPrivateChannel = action.payload;
+      state.isPrivateStream = action.payload;
     },
   },
 });

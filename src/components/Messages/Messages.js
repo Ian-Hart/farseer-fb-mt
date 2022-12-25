@@ -17,6 +17,7 @@ const Messages = () => {
   const [searchResults, setSearchResults] = useState([]);
 
   const stream = useSelector((state) => state.stream.currentStream);
+  const privateStream = useSelector((state) => state.stream.isPrivateStream);
   const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
@@ -27,7 +28,6 @@ const Messages = () => {
       setSearchLoading(false);
       setSearchResults([]);
       setSearchTerm("");
-      console.log(stream.id);
       const unsubscribe = messageListener(stream.id);
       return () => unsubscribe();
     }
@@ -40,16 +40,9 @@ const Messages = () => {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageCnt]);
 
-  /*
-  useEffect(() => {
-    countUniqueUsers();
-    displayHeader();
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageCnt, searchTerm, stream]);*/
-
   const messageListener = (streamId) => {
     let loadedMessages = [];
-    return onChildAdded(fb.messagesRef(streamId), (data) => {
+    return onChildAdded(fb.getMessagesRef(privateStream, streamId), (data) => {
       loadedMessages.push(data.val());
       setMessages(loadedMessages);
       setMessageCnt(loadedMessages.length);
@@ -80,7 +73,6 @@ const Messages = () => {
   };
 
   const displayMessages = (_messages) => {
-    console.log(_messages);
     if (_messages !== undefined) {
       return (
         _messages.length > 0 &&
@@ -91,7 +83,11 @@ const Messages = () => {
     }
   };
 
-  const displayStreamName = (stream) => (stream ? `#${stream.name}` : "");
+  const displayStreamName = stream => {
+    return stream
+      ? `${privateStream ? "@" : "#"}${stream.name} `
+      : "";
+  };
 
   const countUniqueUsers = () => {
     let uniqueUsers = [];
@@ -102,10 +98,7 @@ const Messages = () => {
       }
       return acc;
     }, []);
-    console.log(uniqueUsers);
-    console.log(uniqueUsers.length);
     const plural = uniqueUsers.length > 1 || uniqueUsers.length === 0;
-    console.log(`${uniqueUsers.length} user${plural ? "s" : ""}`);
     setNumUniqueUsers(`${uniqueUsers.length} user${plural ? "s" : ""}`);
   };
 
@@ -117,6 +110,7 @@ const Messages = () => {
         handleSearchChange={handleSearchChange}
         searchLoading={searchLoading}
         searchTerm={searchTerm}
+        privateStream={privateStream}
       />
     );
   }
@@ -131,7 +125,7 @@ const Messages = () => {
             : displayMessages(messages)}
         </Comment.Group>
       </Segment>
-      <MessageForm />
+      <MessageForm/>
     </>
   );
 };

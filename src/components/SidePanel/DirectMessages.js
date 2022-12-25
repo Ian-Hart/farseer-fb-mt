@@ -97,16 +97,11 @@ const DirectMessages = () => {
   const isUserOnline = (user) => user.status === "online";
 
   const changeStream = otherUser => {
-    console.log("Other User");
-    console.log(otherUser);
     const streamId = getStreamId(otherUser.id);
     const streamData = {
       id: streamId,
       name: otherUser.name
     };
-
-    console.log("Set DM Stream");
-    console.log(streamData);
     dispatch(setCurrentStream(streamData));
     dispatch(setPrivateStream(true));
   };

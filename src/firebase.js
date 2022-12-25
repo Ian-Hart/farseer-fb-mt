@@ -77,13 +77,26 @@ export const streamsRef = () => {
   return ref(db, "streams");
 };
 
-export const addMessage = (stream, message) => {
-  const msgStreamRef = push(ref(db, "messages/" + stream.id));
+export const addMessage = (msgRef, message) => {
+  //const msgStreamRef = push(ref(db, "messages/" + stream.id));
+  const msgStreamRef = push(msgRef);
   return set(msgStreamRef, message);
+};
+
+export const getMessagesRef = (privateStream, streamId) => {
+  if(privateStream){
+    return privateMessagesRef(streamId);
+  }else{
+    return messagesRef(streamId);
+  }
 };
 
 export const messagesRef = (streamId) => {
   return ref(db, "messages/" + streamId);
+};
+
+export const privateMessagesRef = (streamId) => {
+  return ref(db, "privateMessages/" + streamId);
 };
 
 export const connectedRef = () => {
@@ -97,3 +110,4 @@ export const presenceRef = () => {
 export const presenceUserRef = (userId) => {
   return ref(db, "presence/" + userId);
 };
+

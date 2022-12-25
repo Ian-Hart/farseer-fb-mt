@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrentStream } from "../../redux/slices/streamSlices";
+import { setCurrentStream, setPrivateStream } from "../../redux/slices/streamSlices";
 import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
 import * as fb from "../../firebase";
 import { onChildAdded } from "firebase/database";
@@ -41,6 +41,7 @@ const Streams = () => {
 
   const changeStream = (stream) => {
     dispatch(setCurrentStream(stream));
+    dispatch(setPrivateStream(false));
   };
 
   const displayStreams = () =>
@@ -92,8 +93,6 @@ const Streams = () => {
           setStreamDetails("");
           changeStream(stream);
           closeModal();
-
-          console.log("Stream Added");
         })
         .catch((err) => {
           console.log(err);

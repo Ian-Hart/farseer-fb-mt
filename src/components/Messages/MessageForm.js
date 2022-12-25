@@ -11,8 +11,10 @@ import FileModal from "./FileModal";
 import ProgressBar from "./ProgressBar";
 
 const MessageForm = () => {
+
   const user = useSelector((state) => state.auth.user);
-  const currentStream = useSelector((state) => state.stream.currentStream);
+  const stream = useSelector((state) => state.stream.currentStream);
+  const privateStream = useSelector((state) => state.stream.isPrivateStream);
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -45,14 +47,11 @@ const MessageForm = () => {
     } else {
       msg["content"] = message;
     }
-
-    console.log(msg);
-
     return msg;
   };
 
   const sendTextMessage = () => {
-    if (message && !_.isEmpty(currentStream)) {
+    if (message && !_.isEmpty(stream)) {
       sendMessage();
     } else {
       setError("Select a stream and add a message");
@@ -60,7 +59,7 @@ const MessageForm = () => {
   };
 
   const sendImageMessage = (fileUrl) => {
-    if (fileUrl !== null && !_.isEmpty(currentStream)) {
+    if (fileUrl !== null && !_.isEmpty(stream)) {
       sendMessage(fileUrl);
     } else {
       setError("Select a stream and add a file");
@@ -69,7 +68,7 @@ const MessageForm = () => {
 
   const sendMessage = (fileUrl = null) => {
     setLoading(true);
-    fb.addMessage(currentStream, createMessage(fileUrl))
+    fb.addMessage(fb.getMessagesRef(privateStream, stream.id),createMessage(fileUrl))
       .then(() => {
         setLoading(false);
         setMessage("");
@@ -88,8 +87,16 @@ const MessageForm = () => {
     return error.toLowerCase().includes(inputName) ? "error" : "";
   };
 
+  const getPath = () => {
+    if (privateStream) {
+      return `chat/private-${stream.id}`;
+    } else {
+      return "chat/public";
+    }
+  };
+
   const uploadFile = (file, metadata) => {
-    const filePath = `chat/public/${uuid()}.jpg`;
+    const filePath = `${getPath()}/${uuid()}.jpg`;
     const storageRef = ref(fb.storage, filePath);
 
     let uploadTask = uploadBytesResumable(storageRef, file);
