@@ -23,6 +23,7 @@ const DirectMessages = () => {
   const user = useSelector((state) => state.auth.user);
   const [otherUsers, setOtherUsers] = useState([]);
   let _otherUsers = [];
+  const [activeStream, setActiveStream] = useState("");
 
   const usersRef = fb.usersRef();
   const connectedRef = fb.connectedRef();
@@ -104,6 +105,7 @@ const DirectMessages = () => {
     };
     dispatch(setCurrentStream(streamData));
     dispatch(setPrivateStream(true));
+    setActiveStream(otherUser.id);
   };
 
   const getStreamId = otherUserId => {
@@ -124,6 +126,7 @@ const DirectMessages = () => {
       {otherUsers.map((otherUser) => (
         <Menu.Item
           key={otherUser.id}
+          active={otherUser.id === activeStream}
           onClick={() => changeStream(otherUser)}
           style={{ opacity: 0.7, fontStyle: "italic" }}
         >

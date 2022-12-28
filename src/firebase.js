@@ -78,7 +78,6 @@ export const streamsRef = () => {
 };
 
 export const addMessage = (msgRef, message) => {
-  //const msgStreamRef = push(ref(db, "messages/" + stream.id));
   const msgStreamRef = push(msgRef);
   return set(msgStreamRef, message);
 };

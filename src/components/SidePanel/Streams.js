@@ -1,21 +1,26 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrentStream, setPrivateStream } from "../../redux/slices/streamSlices";
-import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
+import {
+  setCurrentStream,
+  setPrivateStream,
+} from "../../redux/slices/streamSlices";
+import { Menu, Icon, Modal, Form, Input, Button, Label } from "semantic-ui-react";
 import * as fb from "../../firebase";
-import { onChildAdded } from "firebase/database";
+import { onChildAdded, onValue } from "firebase/database";
 import { uuidv4 as uuid } from "@firebase/util";
 
 const Streams = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const currentStream = useSelector((state) => state.stream.currentStream);
-
   const [currentStreamId, setCurrentStreamId] = useState("");
   const [streams, setStreams] = useState([]);
   const [streamName, setStreamName] = useState("");
+  const [notifications, setNotifications] = useState([]);
   const [streamDetails, setStreamDetails] = useState("");
   const [modal, setModal] = useState(false);
+
+  let _notifications = [];
 
   const streamRef = fb.streamsRef();
 
@@ -27,21 +32,65 @@ const Streams = () => {
 
   const streamAddedListener = () => {
     let loadedFirebaseStreams = [];
-    return onChildAdded(streamRef, (data) => {
-      let firebaseStream = data.val();
+    return onChildAdded(streamRef, (snap) => {
+      let firebaseStream = snap.val();
       loadedFirebaseStreams.push(firebaseStream);
+
       setStreams(loadedFirebaseStreams);
-      changeStream(firebaseStream)
+      changeStream(firebaseStream);
+      notificationListener(snap.key);
     });
   };
 
+  const notificationListener = (streamId) => {
+    onValue(fb.messagesRef(streamId), (snap) => {
+        handleNotifications(streamId, snap);
+    });
+  };
+
+  const handleNotifications = (streamId, snap) => {
+    let index = _notifications.findIndex(
+      (notification) => notification.id === streamId
+    );
+
+    console.log(index);
+    if (index !== -1) {
+      _notifications[index].count = snap.size      
+
+    } else{
+      _notifications.push({
+        id: streamId,
+        count: snap.size,
+      });
+    
+    }
+
+    setNotifications([..._notifications]);
+  }
+
   useEffect(() => {
-      setCurrentStreamId(currentStream.id);
+    displayStreams();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notifications]);
+
+
+  useEffect(() => {
+    setCurrentStreamId(currentStream.id);
   }, [currentStream]);
 
   const changeStream = (stream) => {
     dispatch(setCurrentStream(stream));
     dispatch(setPrivateStream(false));
+  };
+
+  const getNotificationCount = (streamId) => {
+    let count = 0;
+    notifications.forEach(notification => {
+      if (notification.id === streamId) {
+        count = notification.count;
+      }
+    });
+    if (count > 0) return count;
   };
 
   const displayStreams = () =>
@@ -54,6 +103,9 @@ const Streams = () => {
         style={{ opacity: 0.7 }}
         active={stream.id === currentStreamId}
       >
+         {getNotificationCount(stream.id) && (
+          <Label color="red">{getNotificationCount(stream.id)}</Label>
+        )}
         # {stream.name}
       </Menu.Item>
     ));
