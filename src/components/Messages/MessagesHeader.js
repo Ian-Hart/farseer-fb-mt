@@ -7,7 +7,9 @@ const MessagesHeader = ({
   handleSearchChange,
   searchLoading,
   searchTerm,
-  privateStream
+  privateStream,
+  handleStar,
+  streamStarred
 }) => {
   return (
     <Segment clearing>
@@ -15,7 +17,13 @@ const MessagesHeader = ({
       <Header fluid="true" as="h2" floated="left" style={{ marginBottom: 0 }}>
         <span>
           {streamName}
-          {!privateStream && <Icon name={"star outline"} color="black" />}
+          {!privateStream && (
+            <Icon
+              onClick={()=>handleStar(streamStarred)}
+              name={streamStarred ? "star" : "star outline"}
+              color={streamStarred ? "yellow" : "black"}
+            />
+          )}
         </span>
         <Header.Subheader>{numUniqueUsers}</Header.Subheader>
       </Header>

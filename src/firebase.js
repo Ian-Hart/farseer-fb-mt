@@ -110,3 +110,11 @@ export const presenceUserRef = (userId) => {
   return ref(db, "presence/" + userId);
 };
 
+export const userStarredRef = (userId) => {
+  return ref(db, "users/" + userId + "/starred");
+}
+
+export const userStarredRefStreamId = (userId, streamId) => {
+  return ref(db, "users/" + userId + "/starred/" + streamId);
+}
+

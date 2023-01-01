@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as fb from "../../firebase";
-import { onChildAdded } from "firebase/database";
+import { get, onChildAdded, remove, update } from "firebase/database";
 import { Segment, Comment } from "semantic-ui-react";
 import MessagesHeader from "./MessagesHeader";
 import MessageForm from "./MessageForm";
@@ -15,6 +15,7 @@ const Messages = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [streamStarred, setStreamStarred] = useState(false);
 
   const stream = useSelector((state) => state.stream.currentStream);
   const privateStream = useSelector((state) => state.stream.isPrivateStream);
@@ -28,6 +29,7 @@ const Messages = () => {
       setSearchLoading(false);
       setSearchResults([]);
       setSearchTerm("");
+      userStarsListener(stream.id, user.id);
       const unsubscribe = messageListener(stream.id);
       return () => unsubscribe();
     }
@@ -48,6 +50,44 @@ const Messages = () => {
       setMessageCnt(loadedMessages.length);
       setMessagesLoading(false);
     });
+  };
+
+  const userStarsListener = (streamId, userId) => {
+    get(fb.userStarredRef(userId)).then((data) => {
+      if (data.exists()) {
+        if (data.val() !== null) {
+          const streamIds = Object.keys(data.val());
+          const prevStarred = streamIds.includes(streamId);
+          _streamStarred = prevStarred;
+          console.log(_streamStarred);
+          setStreamStarred(prevStarred);
+        }
+      }
+    });
+  };
+
+  const handleStar = (starred) => {
+    setStreamStarred(!starred);
+  };
+
+  useEffect(()=>{
+    displayHeader();
+    starStream();
+  },[streamStarred])
+
+  const starStream = () => {
+    if (streamStarred) {
+      update(fb.userStarredRefStreamId(user.id, stream.id), {
+        name: stream.name,
+        details: stream.details,
+        createdBy: {
+          name: stream.createdBy.name,
+          avatar: stream.createdBy.avatar,
+        },
+      });
+    } else {
+      remove(fb.userStarredRefStreamId(user.id, stream.id));
+    }
   };
 
   const handleSearchChange = (e) => {
@@ -83,10 +123,8 @@ const Messages = () => {
     }
   };
 
-  const displayStreamName = stream => {
-    return stream
-      ? `${privateStream ? "@" : "#"}${stream.name} `
-      : "";
+  const displayStreamName = (stream) => {
+    return stream ? `${privateStream ? "@" : "#"}${stream.name} ` : "";
   };
 
   const countUniqueUsers = () => {
@@ -103,7 +141,7 @@ const Messages = () => {
   };
 
   const displayHeader = () => {
-    return(
+    return (
       <MessagesHeader
         streamName={displayStreamName(stream)}
         numUniqueUsers={numUniqueUsers}
@@ -111,9 +149,11 @@ const Messages = () => {
         searchLoading={searchLoading}
         searchTerm={searchTerm}
         privateStream={privateStream}
+        handleStar={handleStar}
+        streamStarred={streamStarred}
       />
     );
-  }
+  };
 
   return (
     <>
@@ -125,7 +165,7 @@ const Messages = () => {
             : displayMessages(messages)}
         </Comment.Group>
       </Segment>
-      <MessageForm/>
+      <MessageForm />
     </>
   );
 };

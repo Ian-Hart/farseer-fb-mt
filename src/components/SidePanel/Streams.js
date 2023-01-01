@@ -53,7 +53,6 @@ const Streams = () => {
       (notification) => notification.id === streamId
     );
 
-    console.log(index);
     if (index !== -1) {
       _notifications[index].count = snap.size      
 
@@ -94,8 +93,8 @@ const Streams = () => {
   };
 
   const displayStreams = () =>
-    streams.length > 0 &&
-    streams.map((stream) => (
+    streams?.length > 0 &&
+    streams?.map((stream) => (
       <Menu.Item
         key={stream.id}
         onClick={() => changeStream(stream)}
