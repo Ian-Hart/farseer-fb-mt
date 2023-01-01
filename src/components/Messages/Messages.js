@@ -58,8 +58,6 @@ const Messages = () => {
         if (data.val() !== null) {
           const streamIds = Object.keys(data.val());
           const prevStarred = streamIds.includes(streamId);
-          _streamStarred = prevStarred;
-          console.log(_streamStarred);
           setStreamStarred(prevStarred);
         }
       }
