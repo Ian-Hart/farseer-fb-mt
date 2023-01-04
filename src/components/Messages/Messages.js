@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setUserPosts
+} from "../../redux/slices/usersSlices";
 import * as fb from "../../firebase";
 import { get, onChildAdded, remove, update } from "firebase/database";
 import { Segment, Comment } from "semantic-ui-react";
@@ -8,6 +11,8 @@ import MessageForm from "./MessageForm";
 import Message from "./Message";
 
 const Messages = () => {
+  const dispatch = useDispatch();
+
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(true);
   const [messageCnt, setMessageCnt] = useState(0);
@@ -29,6 +34,7 @@ const Messages = () => {
       setSearchLoading(false);
       setSearchResults([]);
       setSearchTerm("");
+      dispatch(setUserPosts({}));
       userStarsListener(stream.id, user.id);
       const unsubscribe = messageListener(stream.id);
       return () => unsubscribe();
@@ -48,6 +54,7 @@ const Messages = () => {
       loadedMessages.push(data.val());
       setMessages(loadedMessages);
       setMessageCnt(loadedMessages.length);
+      countUserPosts(loadedMessages);
       setMessagesLoading(false);
     });
   };
@@ -108,6 +115,21 @@ const Messages = () => {
     }, []);
     setSearchResults(results);
     setTimeout(() => setSearchLoading(false), 1000);
+  };
+
+  const countUserPosts = (_messages) => {
+    let userPosts = _messages.reduce((acc, message) => {
+      if (message.user.name in acc) {
+        acc[message.user.name].count += 1;
+      } else {
+        acc[message.user.name] = {
+          avatar: message.user.avatar,
+          count: 1
+        };
+      }
+      return acc;
+    }, {});
+    dispatch(setUserPosts(userPosts));
   };
 
   const displayMessages = (_messages) => {

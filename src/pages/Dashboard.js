@@ -24,7 +24,7 @@ const Dashboard = () => {
       </Grid.Column>
 
       <Grid.Column width={4}>
-        <MetaPanel />
+        <MetaPanel/>
       </Grid.Column>
     </Grid>
   );
