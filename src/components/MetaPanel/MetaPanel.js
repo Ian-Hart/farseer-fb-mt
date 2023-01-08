@@ -1,5 +1,5 @@
 import { isEmpty } from "lodash";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Segment, Accordion, Header, Icon, Image, List } from "semantic-ui-react";
 

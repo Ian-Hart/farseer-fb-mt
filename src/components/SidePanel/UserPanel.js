@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Grid, Header, Icon, Dropdown, Image } from "semantic-ui-react";
 import * as fb from "../../firebase";
 
-const UserPanel = () => {
+const UserPanel = ({primaryColor}) => {
   const user = useSelector(state => state.auth.user);
 
   const dropdownOptions = () => {
@@ -33,7 +33,7 @@ const UserPanel = () => {
   };
 
   return (
-    <Grid style={{ background: "#4c3c4c" }}>
+    <Grid style={{ background: primaryColor }}>
       <Grid.Column>
         <Grid.Row style={{ padding: "1.2em", margin: 0 }}>
           {/* App Header */}

@@ -10,7 +10,10 @@ import {
   signOut,
 } from "firebase/auth";
 import { getDatabase, ref, set, push } from "firebase/database";
+
 import { getStorage } from "firebase/storage";
+
+import { uuidv4 as uuid } from "@firebase/util";
 
 const config = {
   apiKey: "AIzaSyAQBlUDlJFdlsaLSGO3Kpsgmyx1PfG4JbM",
@@ -117,4 +120,13 @@ export const userStarredRef = (userId) => {
 export const userStarredRefStreamId = (userId, streamId) => {
   return ref(db, "users/" + userId + "/starred/" + streamId);
 }
+
+export const userColorsRef = (userId) => {
+  return ref(db, "users/" + userId + "/colors/" + uuid());
+}
+
+export const userColorsListRef = (userId) => {
+  return ref(db, "users/" + userId + "/colors/");
+}
+
 
