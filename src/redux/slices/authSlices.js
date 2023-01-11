@@ -23,11 +23,14 @@ export const authSlices = createSlice({
       state.isSignedIn = false;
       state.user = initialState.user;  
     },
+    setAvatar: (state, action) => {
+      state.user.avatar = action.payload.avatar;
+    },
   },
 });
 
 //Generate the action creators
-export const { setUser, clearUser } = authSlices.actions;
+export const { setUser, clearUser, setAvatar } = authSlices.actions;
 
 //Export reducers
 export default authSlices.reducer;

@@ -47,6 +47,7 @@ export const updateUserProfile = (user, username, profilePhotoUrl) => {
   });
 };
 
+
 export const saveUser = (user) => {
   return set(ref(db, "users/" + user.uid), {
     id: user.uid,
@@ -54,6 +55,11 @@ export const saveUser = (user) => {
     avatar: user.photoURL,
   });
 };
+
+export const currentUser = () =>{
+  return auth.currentUser;
+}
+
 
 export const signUserIn = (email, password) => {
   return signInWithEmailAndPassword(auth, email, password);
